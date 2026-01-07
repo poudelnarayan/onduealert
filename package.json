@@ -1,25 +1,40 @@
 {
-  "name": "remindly",
+  "name": "onduealert",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:init": "prisma migrate dev --name init && prisma generate",
+    "db:push": "prisma db push && prisma generate",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:migrate:init": "prisma migrate dev --name init",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.36.5",
+    "@prisma/client": "^6.3.1",
+    "@supabase/supabase-js": "^2.89.0",
+    "framer-motion": "^11.18.2",
     "next": "16.1.1",
+    "nodemailer": "^6.9.16",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.16",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "prisma": "^6.3.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

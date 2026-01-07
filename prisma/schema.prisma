@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ReminderCategory {
+  TAX
+  CONTRACT
+  LICENSE
+  CUSTOM
+}
+
+enum ReminderFrequency {
+  ONE_TIME
+  WEEKLY
+  MONTHLY
+  YEARLY
+  CUSTOM
+}
+
+enum ReminderStatus {
+  OPEN
+  COMPLETED
+}
+
+enum EscalationLevel {
+  NORMAL
+  WARNING
+  CRITICAL
+}
+
+enum NotificationType {
+  OFFSET_REMINDER
+  OVERDUE_ESCALATION
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model ReminderSchedule {
+  id                 String            @id @default(cuid())
+  clerkUserId        String
+  frequency          ReminderFrequency
+  interval           Int               @default(1) // e.g. every 2 weeks/months/years
+  customIntervalDays Int?              // used when frequency = CUSTOM (simple "cron-like" interval)
+  cronExpression     String?           // reserved for future cron parser support
+  timezone           String            @default("UTC")
+  offsetsDays        Int[]             @default([]) // e.g. [7, 1, 0]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  reminders          Reminder[]
+
+  @@index([clerkUserId])
+}
+
+model Reminder {
+  id               String          @id @default(cuid())
+  clerkUserId      String
+  scheduleId       String
+  clientName       String?
+  title            String
+  description      String?
+  category         ReminderCategory
+  dueAt            DateTime
+  status           ReminderStatus  @default(OPEN)
+  completedAt      DateTime?
+  snoozedUntil     DateTime?
+  snoozeCount      Int             @default(0)
+  previousReminderId String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  schedule         ReminderSchedule @relation(fields: [scheduleId], references: [id], onDelete: Restrict)
+  previousReminder Reminder?       @relation("ReminderChain", fields: [previousReminderId], references: [id])
+  nextReminders    Reminder[]      @relation("ReminderChain")
+  notifications    NotificationLog[]
+  completions      ReminderCompletion[]
+
+  @@index([clerkUserId, status, dueAt])
+  @@index([clerkUserId, clientName])
+  @@index([scheduleId])
+}
+
+model ReminderCompletion {
+  id          String   @id @default(cuid())
+  clerkUserId String
+  reminderId  String
+  completedAt DateTime @default(now())
+  note        String?
+  createdAt   DateTime @default(now())
+
+  reminder    Reminder @relation(fields: [reminderId], references: [id], onDelete: Cascade)
+  attachments CompletionAttachment[]
+
+  @@index([clerkUserId, completedAt])
+  @@index([reminderId, completedAt])
+}
+
+model CompletionAttachment {
+  id            String             @id @default(cuid())
+  completionId  String
+  filename      String
+  mimeType      String
+  sizeBytes     Int
+  sha256        String
+  // New uploads should go to Supabase Storage; keep `data` nullable for legacy DB-stored files.
+  storageBucket String?
+  storagePath   String?
+  data          Bytes?
+  createdAt     DateTime           @default(now())
+
+  completion    ReminderCompletion @relation(fields: [completionId], references: [id], onDelete: Cascade)
+
+  @@index([completionId])
+}
+
+model NotificationLog {
+  id               String             @id @default(cuid())
+  clerkUserId      String
+  reminderId       String
+  type             NotificationType
+  level            EscalationLevel    @default(NORMAL)
+  status           NotificationStatus @default(PENDING)
+  scheduledFor     DateTime
+  // For idempotency, offsetDays is always present.
+  // Use -1 for overdue escalation; 0..N for offset reminders.
+  offsetDays       Int
+  attemptCount     Int                @default(0)
+  sentAt           DateTime?
+  providerMessageId String?
+  errorMessage     String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  reminder          Reminder          @relation(fields: [reminderId], references: [id], onDelete: Cascade)
+
+  @@unique([reminderId, type, scheduledFor, offsetDays], name: "notification_idempotency")
+  @@index([clerkUserId, scheduledFor])
+  @@index([reminderId])
+}
+
+

@@ -1,8 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* OnDueAlert palette (single source of truth) */
+  --background: #222831; /* foundation */
+  --surface: #393e46; /* containers */
+  --accent: #00adb5; /* action/status */
+  --foreground: #eeeeee; /* text */
+
+  /* Derived tokens */
+  --surface-muted: #454b54; /* +~5% lighter than surface */
+  --border: rgba(238, 238, 238, 0.14);
+  --border-strong: rgba(238, 238, 238, 0.22);
+  --muted: rgba(238, 238, 238, 0.7);
+  --muted-2: rgba(238, 238, 238, 0.6);
+  --accent-bg: rgba(0, 173, 181, 0.14);
+  --accent-bg-strong: rgba(0, 173, 181, 0.22);
+  --accent-foreground: #222831; /* ALWAYS text on accent */
+
+  /* Emergency / critical (landing page only; use sparingly) */
+  --danger: #ff4433;
+  --danger-bg: rgba(255, 68, 51, 0.14);
+
+  /* Backwards-compat mappings (existing utility classes in codebase) */
+  --brand-950: var(--foreground);
+  --brand-900: var(--foreground);
+  --brand-700: var(--muted);
+  --brand-600: var(--muted-2);
+  --brand-200: var(--border-strong);
+
+  /* Legacy names used in a couple places (map to accent) */
+  --accent-success: var(--accent);
+  --accent-amber: var(--accent);
 }
 
 @theme inline {
@@ -10,17 +38,48 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-brand-950: var(--brand-950);
+  --color-brand-900: var(--brand-900);
+  --color-brand-700: var(--brand-700);
+  --color-brand-600: var(--brand-600);
+  --color-brand-200: var(--brand-200);
+
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+
+  --color-accent: var(--accent);
+  --color-accent-bg: var(--accent-bg);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+
+  --color-accent-success: var(--accent-success);
+  --color-accent-amber: var(--accent-amber);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Smooth anchor scrolling (landing nav: #features, #different, #reliability) */
+html {
+  scroll-behavior: smooth;
+  /* Offset for sticky header */
+  scroll-padding-top: 88px;
+}
+
+/* Ensure anchored sections aren't hidden behind sticky header */
+section[id] {
+  scroll-margin-top: 88px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

@@ -116,7 +116,8 @@ export function LandingPage() {
                   </FadeIn>
                   <FadeIn>
                     <h1 className="mt-4 text-pretty text-4xl font-semibold tracking-tight text-brand-950 sm:text-5xl">
-                      Never miss a deadline again.
+                      Never <span className="text-danger">miss</span> a deadline
+                      again.
                     </h1>
                   </FadeIn>
                   <FadeIn>
@@ -400,7 +401,8 @@ export function LandingPage() {
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center">
                 <div className="min-w-0">
                   <h2 className="text-pretty text-2xl font-semibold tracking-tight text-brand-950 sm:text-3xl">
-                    Deadlines shouldn’t be a risk.
+                    Deadlines shouldn’t be a{" "}
+                    <span className="text-danger">risk</span>.
                   </h2>
                   <p className="mt-3 max-w-prose text-pretty text-base leading-7 text-brand-700">
                     Set up predictable deadlines, receive notifications ahead of

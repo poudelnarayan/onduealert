@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { AlertBanner } from "@/components/ui/AlertBanner";
 
 type ReminderFormData = {
@@ -181,11 +182,10 @@ export function ReminderForm(props: {
             }
             options={categoryOptions}
           />
-          <Input
+          <DatePicker
             label="Due date"
-            type="date"
             value={data.dueDate}
-            onChange={(e) => setData((s) => ({ ...s, dueDate: e.target.value }))}
+            onChange={(v) => setData((s) => ({ ...s, dueDate: v }))}
             hint="Used to compute escalation and notification offsets."
             required
           />

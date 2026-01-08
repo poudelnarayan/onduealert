@@ -92,7 +92,8 @@ export default async function DashboardPage() {
             Dashboard
           </div>
           <div className="mt-1 text-sm text-brand-600">
-            Today’s deadlines, upcoming risk, and overdue enforcement.
+            Today’s deadlines, upcoming <span className="text-danger">risk</span>
+            , and overdue enforcement.
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             <Badge>{openCount} open</Badge>

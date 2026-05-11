@@ -3,6 +3,7 @@
 import * as React from "react";
 import ReactDatePicker from "react-datepicker";
 import { format, parseISO, isValid } from "date-fns";
+import { cn } from "@/lib/cn";
 
 type DatePickerProps = {
   id?: string;
@@ -17,16 +18,11 @@ type DatePickerProps = {
 
 function CalendarIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
       <path
         d="M8 3v3M16 3v3M4 9h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="1.7"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -69,19 +65,19 @@ const DatePickerButton = React.forwardRef<
       onClick={onClick}
       disabled={disabled}
       {...aria}
-      className={[
-        "flex w-full items-center justify-between gap-3 rounded-md border border-border bg-background px-3 py-2 text-left text-sm text-foreground outline-none",
-        "focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/30",
-        hasError ? "border-accent focus-visible:ring-accent/40" : "",
-        disabled ? "opacity-60 pointer-events-none" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      className={cn(
+        "flex w-full items-center justify-between gap-3 rounded-lg border bg-surface px-3 py-2 text-left text-sm transition shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)]",
+        "h-10",
+        hasError
+          ? "border-[var(--danger)] focus-visible:ring-2 focus-visible:ring-[var(--danger-ring)]"
+          : "border-[var(--border-strong)] focus-visible:border-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[rgba(37,99,235,0.20)]",
+        disabled && "opacity-60 pointer-events-none",
+      )}
     >
-      <span className={value ? "text-foreground" : "text-[rgba(238,238,238,0.6)]"}>
+      <span className={cn(value ? "text-[var(--foreground)]" : "text-[var(--muted-3)]")}>
         {value || placeholder || "Select a date"}
       </span>
-      <CalendarIcon className="h-5 w-5 text-[rgba(238,238,238,0.7)]" />
+      <CalendarIcon className="h-[18px] w-[18px] text-[var(--muted-2)]" />
     </button>
   );
 });
@@ -107,9 +103,12 @@ export function DatePicker({
   return (
     <div className="block">
       {label ? (
-        <div id={labelId} className="mb-1 text-sm font-medium text-brand-900">
+        <div
+          id={labelId}
+          className="mb-1.5 block text-[13px] font-medium text-[var(--foreground)]"
+        >
           {label}
-          {required ? <span className="text-danger"> *</span> : null}
+          {required ? <span className="text-[var(--danger)]"> *</span> : null}
         </div>
       ) : null}
 
@@ -131,7 +130,6 @@ export function DatePicker({
         dateFormat="MMM d, yyyy"
         popperPlacement="bottom-start"
         showPopperArrow={false}
-        calendarClassName="!bg-surface !border !border-border !text-foreground"
         popperClassName="z-50"
         customInput={
           <DatePickerButton
@@ -144,17 +142,16 @@ export function DatePicker({
         }
       />
 
-      {error ? <div className="mt-1 text-sm text-accent">{error}</div> : null}
+      {error ? (
+        <div className="mt-1.5 text-xs font-medium text-[var(--danger-strong)]">
+          {error}
+        </div>
+      ) : null}
       {!error && hint ? (
-        <div
-          id={helpId}
-          className="mt-1 text-sm text-[rgba(238,238,238,0.7)]"
-        >
+        <div id={helpId} className="mt-1.5 text-xs text-[var(--muted-2)]">
           {hint}
         </div>
       ) : null}
     </div>
   );
 }
-
-

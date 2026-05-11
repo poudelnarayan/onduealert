@@ -21,17 +21,14 @@ export function computeEscalationLevel(params: {
 
   if (params.status !== "OPEN") return { level: "NORMAL", daysToDue };
 
-  // Overdue: escalate.
   if (daysToDue < 0) {
     const overdueDays = Math.abs(daysToDue);
     if (overdueDays >= 3) return { level: "CRITICAL", daysToDue };
     return { level: "WARNING", daysToDue };
   }
 
-  // Due today / soon: warning.
   if (daysToDue <= 1) return { level: "WARNING", daysToDue };
 
-  // Within a week: still normal (but "due soon" UX can be layered on top).
   return { level: "NORMAL", daysToDue };
 }
 
@@ -40,12 +37,22 @@ export function escalationBadge(level: EscalationLevel): {
   className: string;
 } {
   if (level === "CRITICAL") {
-    return { label: "Critical", className: "bg-accent-bg-strong text-foreground" };
+    return {
+      label: "Critical",
+      className:
+        "bg-[var(--danger-bg)] text-[var(--danger-strong)] ring-1 ring-inset ring-[var(--danger-ring)]",
+    };
   }
   if (level === "WARNING") {
-    return { label: "Warning", className: "bg-accent-bg text-foreground" };
+    return {
+      label: "Warning",
+      className:
+        "bg-[var(--warning-bg)] text-[var(--warning-strong)] ring-1 ring-inset ring-[var(--warning-ring)]",
+    };
   }
-  return { label: "Normal", className: "bg-transparent text-[rgba(238,238,238,0.7)]" };
+  return {
+    label: "Normal",
+    className:
+      "bg-[var(--surface-muted)] text-[var(--muted)] ring-1 ring-inset ring-[var(--border)]",
+  };
 }
-
-

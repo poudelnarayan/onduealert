@@ -1,41 +1,86 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   OnDueAlert — Premium Design System
+   --------------------------------------------------------------------------
+   Light, calm, operationally trustworthy. Inspired by Linear, Stripe,
+   Notion, Vercel, Raycast, and Apple dashboards.
+   ========================================================================== */
+
 :root {
-  /* OnDueAlert palette (single source of truth) */
-  --background: #222831; /* foundation */
-  --surface: #393e46; /* containers */
-  --accent: #00adb5; /* action/status */
-  --foreground: #eeeeee; /* text */
+  /* ---------------- Surfaces ---------------- */
+  --background: #f7f8fb;          /* page foundation — soft off-white */
+  --background-deep: #eef2f7;     /* very subtle blue-grey wash */
+  --surface: #ffffff;             /* card surfaces */
+  --surface-muted: #f5f7fb;       /* secondary surfaces */
+  --surface-strong: #eef2f7;      /* tertiary surfaces, hover wells */
+  --surface-inverse: #0f172a;     /* dark surfaces inside light app */
 
-  /* Derived tokens */
-  --surface-muted: #454b54; /* +~5% lighter than surface */
-  --border: rgba(238, 238, 238, 0.14);
-  --border-strong: rgba(238, 238, 238, 0.22);
-  --muted: rgba(238, 238, 238, 0.7);
-  --muted-2: rgba(238, 238, 238, 0.6);
-  --accent-bg: rgba(0, 173, 181, 0.14);
-  --accent-bg-strong: rgba(0, 173, 181, 0.22);
-  --accent-foreground: #222831; /* ALWAYS text on accent */
+  /* ---------------- Text ---------------- */
+  --foreground: #0f172a;          /* near-black slate */
+  --foreground-strong: #020617;   /* headings on white */
+  --muted: #475569;               /* body 2 */
+  --muted-2: #64748b;             /* meta / hints */
+  --muted-3: #94a3b8;             /* placeholder / disabled */
 
-  /* Emergency / critical (landing page only; use sparingly) */
-  --danger: #ff4433;
-  --danger-bg: rgba(255, 68, 51, 0.14);
+  /* ---------------- Borders ---------------- */
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.14);
+  --border-soft: rgba(15, 23, 42, 0.05);
 
-  /* Backwards-compat mappings (existing utility classes in codebase) */
-  --brand-950: var(--foreground);
+  /* ---------------- Accent (operational blue) ---------------- */
+  --accent: #2563eb;              /* primary brand action */
+  --accent-strong: #1d4ed8;
+  --accent-soft: #3b82f6;
+  --accent-bg: rgba(37, 99, 235, 0.08);
+  --accent-bg-strong: rgba(37, 99, 235, 0.16);
+  --accent-foreground: #ffffff;   /* text on accent */
+
+  /* Cyan for live / activity highlight */
+  --signal: #06b6d4;
+  --signal-bg: rgba(6, 182, 212, 0.10);
+
+  /* ---------------- Status ---------------- */
+  --success: #10b981;
+  --success-strong: #059669;
+  --success-bg: rgba(16, 185, 129, 0.10);
+  --success-ring: rgba(16, 185, 129, 0.30);
+
+  --warning: #f59e0b;
+  --warning-strong: #b45309;
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --warning-ring: rgba(245, 158, 11, 0.35);
+
+  --danger: #ef4444;
+  --danger-strong: #b91c1c;
+  --danger-bg: rgba(239, 68, 68, 0.10);
+  --danger-ring: rgba(239, 68, 68, 0.30);
+
+  /* ---------------- Effects ---------------- */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 1px rgba(15, 23, 42, 0.03);
+  --shadow-md: 0 6px 20px -8px rgba(15, 23, 42, 0.10), 0 2px 6px -2px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 18px 40px -12px rgba(15, 23, 42, 0.18), 0 4px 10px -4px rgba(15, 23, 42, 0.08);
+  --shadow-glow: 0 10px 40px -10px rgba(37, 99, 235, 0.35);
+
+  /* ---------------- Backwards-compat (existing classes) ---------------- */
+  /* Old "brand-*" tokens map to the new neutral text scale. */
+  --brand-950: var(--foreground-strong);
   --brand-900: var(--foreground);
   --brand-700: var(--muted);
   --brand-600: var(--muted-2);
-  --brand-200: var(--border-strong);
+  --brand-200: rgba(15, 23, 42, 0.10);
 
-  /* Legacy names used in a couple places (map to accent) */
-  --accent-success: var(--accent);
-  --accent-amber: var(--accent);
+  /* Legacy success/amber map to dedicated tones now. */
+  --accent-success: var(--success);
+  --accent-amber: var(--warning);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-deep: var(--background-deep);
   --color-foreground: var(--foreground);
+  --color-foreground-strong: var(--foreground-strong);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
@@ -47,68 +92,238 @@
 
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
+  --color-surface-strong: var(--surface-strong);
+  --color-surface-inverse: var(--surface-inverse);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-soft: var(--border-soft);
+
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-muted-3: var(--muted-3);
 
   --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
   --color-accent-bg: var(--accent-bg);
+  --color-accent-bg-strong: var(--accent-bg-strong);
   --color-accent-foreground: var(--accent-foreground);
 
+  --color-signal: var(--signal);
+  --color-signal-bg: var(--signal-bg);
+
+  --color-success: var(--success);
+  --color-success-strong: var(--success-strong);
+  --color-success-bg: var(--success-bg);
+  --color-success-ring: var(--success-ring);
+
+  --color-warning: var(--warning);
+  --color-warning-strong: var(--warning-strong);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-ring: var(--warning-ring);
+
   --color-danger: var(--danger);
+  --color-danger-strong: var(--danger-strong);
   --color-danger-bg: var(--danger-bg);
+  --color-danger-ring: var(--danger-ring);
 
   --color-accent-success: var(--accent-success);
   --color-accent-amber: var(--accent-amber);
+
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-glow: var(--shadow-glow);
 }
 
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+html,
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-/* Smooth anchor scrolling (landing nav: #features, #different, #reliability) */
+body {
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "ss01", "cv11", "cv02";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
+}
+
+/* Subtle ambient gradient on the page foundation */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(1200px 600px at 100% -10%, rgba(37, 99, 235, 0.06), transparent 60%),
+    radial-gradient(900px 500px at -10% 0%, rgba(6, 182, 212, 0.05), transparent 55%),
+    linear-gradient(180deg, var(--background) 0%, var(--background-deep) 100%);
+}
+
+h1, h2, h3, h4, h5 {
+  letter-spacing: -0.022em;
+}
+
+::selection {
+  background: rgba(37, 99, 235, 0.18);
+  color: var(--foreground-strong);
+}
+
+/* Smooth anchor scrolling (landing nav) */
 html {
   scroll-behavior: smooth;
-  /* Offset for sticky header */
-  scroll-padding-top: 88px;
+  scroll-padding-top: 96px;
 }
 
-/* Ensure anchored sections aren't hidden behind sticky header */
 section[id] {
-  scroll-margin-top: 88px;
+  scroll-margin-top: 96px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+  html { scroll-behavior: auto; }
 }
 
-/* -------------------------------
-   react-datepicker (dark theme)
-   ------------------------------- */
+/* ==========================================================================
+   Reusable utility classes
+   ========================================================================== */
+
+/* Decorative grid for hero / feature backgrounds */
+.bg-grid-soft {
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 35%, transparent 75%);
+          mask-image: radial-gradient(ellipse at center, black 35%, transparent 75%);
+}
+
+.bg-dot-soft {
+  background-image: radial-gradient(rgba(15, 23, 42, 0.10) 1px, transparent 1px);
+  background-size: 18px 18px;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+          mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+/* Glass panel */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+          backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-md);
+}
+
+/* Premium gradient text */
+.text-gradient {
+  background: linear-gradient(135deg, #0f172a 0%, #2563eb 60%, #06b6d4 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Status pulse dot — applied as a modifier; element supplies its own size/color. */
+.status-dot {
+  position: relative;
+}
+.status-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.3;
+  animation: pulse-soft 2.2s ease-in-out infinite;
+}
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(0.85); opacity: 0.35; }
+  50%      { transform: scale(1.4);  opacity: 0;    }
+}
+
+/* Live shimmer used for activity indicators */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0.04) 0%,
+    rgba(15, 23, 42, 0.10) 50%,
+    rgba(15, 23, 42, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.4s linear infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Float gentle */
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+.float-soft { animation: float-soft 6s ease-in-out infinite; }
+
+/* Hover lift utility */
+.hover-lift {
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
+
+/* Visible focus ring helper */
+.ring-focus {
+  outline: none;
+}
+.ring-focus:focus-visible {
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--accent);
+}
+
+/* ==========================================================================
+   react-datepicker (light premium theme)
+   ========================================================================== */
+
 .react-datepicker {
   background: var(--surface) !important;
   border: 1px solid var(--border) !important;
   color: var(--foreground) !important;
   font-family: var(--font-sans), Arial, Helvetica, sans-serif !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow-lg) !important;
+  overflow: hidden;
 }
 
 .react-datepicker__header {
   background: var(--surface-muted) !important;
   border-bottom: 1px solid var(--border) !important;
+  padding-top: 12px !important;
 }
 
 .react-datepicker__current-month,
 .react-datepicker-time__header,
 .react-datepicker-year-header {
-  color: var(--foreground) !important;
+  color: var(--foreground-strong) !important;
+  font-weight: 600 !important;
 }
 
 .react-datepicker__day-name,
 .react-datepicker__day,
 .react-datepicker__time-name {
-  color: rgba(238, 238, 238, 0.85) !important;
+  color: var(--muted) !important;
+  border-radius: 8px !important;
 }
 
 .react-datepicker__day:hover,
@@ -116,7 +331,7 @@ section[id] {
 .react-datepicker__quarter-text:hover,
 .react-datepicker__year-text:hover {
   background: var(--accent-bg) !important;
-  color: var(--foreground) !important;
+  color: var(--accent-strong) !important;
 }
 
 .react-datepicker__day--selected,
@@ -125,12 +340,17 @@ section[id] {
   color: var(--accent-foreground) !important;
 }
 
+.react-datepicker__day--today {
+  font-weight: 700 !important;
+  color: var(--accent-strong) !important;
+}
+
 .react-datepicker__day--outside-month {
-  color: rgba(238, 238, 238, 0.35) !important;
+  color: var(--muted-3) !important;
 }
 
 .react-datepicker__navigation-icon::before {
-  border-color: rgba(238, 238, 238, 0.75) !important;
+  border-color: var(--muted) !important;
 }
 
 .react-datepicker__triangle {

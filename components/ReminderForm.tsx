@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { AlertBanner } from "@/components/ui/AlertBanner";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 
 type ReminderFormData = {
   clientName: string;
@@ -17,9 +19,9 @@ type ReminderFormData = {
   interval: string;
   customIntervalDays: string;
   cronExpression: string;
-  dueDate: string; // YYYY-MM-DD
+  dueDate: string;
   timezone: string;
-  offsetsDays: string; // e.g. "7,1,0"
+  offsetsDays: string;
 };
 
 const categoryOptions = [
@@ -49,6 +51,37 @@ function parseOffsets(input: string): number[] {
   return Array.from(new Set(nums));
 }
 
+function FormSection(props: {
+  step: string;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="grid grid-cols-1 gap-0 lg:grid-cols-12">
+        <div className="border-b border-[var(--border)] bg-[var(--surface-muted)] p-5 lg:col-span-4 lg:border-b-0 lg:border-r">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-strong)]">
+            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-white font-mono text-[10px] font-bold ring-1 ring-[var(--border)]">
+              {props.step}
+            </span>
+            Step
+          </div>
+          <div className="mt-3 text-[15px] font-semibold tracking-tight text-[var(--foreground-strong)]">
+            {props.title}
+          </div>
+          <p className="mt-1 text-[13px] leading-5 text-[var(--muted)]">
+            {props.description}
+          </p>
+        </div>
+        <div className="space-y-4 p-5 lg:col-span-8 lg:p-6">
+          {props.children}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export function ReminderForm(props: {
   mode: "create" | "edit";
   reminderId?: string;
@@ -65,8 +98,9 @@ export function ReminderForm(props: {
     clientName: props.initial?.clientName ?? "",
     title: props.initial?.title ?? "",
     description: props.initial?.description ?? "",
-    category: (props.initial?.category as any) ?? "TAX",
-    frequency: (props.initial?.frequency as any) ?? "ONE_TIME",
+    category: (props.initial?.category as ReminderFormData["category"]) ?? "TAX",
+    frequency:
+      (props.initial?.frequency as ReminderFormData["frequency"]) ?? "ONE_TIME",
     interval: props.initial?.interval ?? "1",
     customIntervalDays: props.initial?.customIntervalDays ?? "",
     cronExpression: props.initial?.cronExpression ?? "",
@@ -74,6 +108,14 @@ export function ReminderForm(props: {
     timezone: props.initial?.timezone ?? browserTz,
     offsetsDays: props.initial?.offsetsDays ?? "7,1,0",
   }));
+
+  const offsetsPreview = (() => {
+    try {
+      return parseOffsets(data.offsetsDays);
+    } catch {
+      return null;
+    }
+  })();
 
   return (
     <form
@@ -92,10 +134,12 @@ export function ReminderForm(props: {
           if (!data.dueDate) throw new Error("Due date is required.");
           if (!data.title.trim()) throw new Error("Title is required.");
 
-          const payload: any = {
+          const payload: Record<string, unknown> = {
             clientName: data.clientName.trim() ? data.clientName.trim() : null,
             title: data.title.trim(),
-            description: data.description.trim() ? data.description.trim() : null,
+            description: data.description.trim()
+              ? data.description.trim()
+              : null,
             category: data.category,
             frequency: data.frequency,
             interval,
@@ -134,23 +178,24 @@ export function ReminderForm(props: {
       }}
     >
       {error ? (
-        <AlertBanner variant="critical" title="Unable to save" description={error} />
+        <AlertBanner
+          variant="critical"
+          title="Unable to save"
+          description={error}
+        />
       ) : null}
 
-      <div className="space-y-4">
-        <div>
-          <div className="text-sm font-semibold text-brand-900">
-            Deadline details
-          </div>
-          <div className="mt-1 text-sm text-brand-600">
-            Keep the title specific and the owner clear.
-          </div>
-        </div>
-
+      <FormSection
+        step="01"
+        title="Deadline details"
+        description="Keep the title specific and the owner clear. This becomes the source of truth across alerts and audit records."
+      >
         <Input
           label="Client / business (optional)"
           value={data.clientName}
-          onChange={(e) => setData((s) => ({ ...s, clientName: e.target.value }))}
+          onChange={(e) =>
+            setData((s) => ({ ...s, clientName: e.target.value }))
+          }
           maxLength={140}
           placeholder="e.g. Acme Corp"
           hint="Used for filtering and accountability."
@@ -168,7 +213,9 @@ export function ReminderForm(props: {
         <Input
           label="Description (optional)"
           value={data.description}
-          onChange={(e) => setData((s) => ({ ...s, description: e.target.value }))}
+          onChange={(e) =>
+            setData((s) => ({ ...s, description: e.target.value }))
+          }
           maxLength={2000}
           placeholder="Reference numbers, links, internal notes."
         />
@@ -178,7 +225,10 @@ export function ReminderForm(props: {
             label="Category"
             value={data.category}
             onChange={(e) =>
-              setData((s) => ({ ...s, category: e.target.value as any }))
+              setData((s) => ({
+                ...s,
+                category: e.target.value as ReminderFormData["category"],
+              }))
             }
             options={categoryOptions}
           />
@@ -186,35 +236,36 @@ export function ReminderForm(props: {
             label="Due date"
             value={data.dueDate}
             onChange={(v) => setData((s) => ({ ...s, dueDate: v }))}
-            hint="Used to compute escalation and notification offsets."
+            hint="Drives escalation and notification offsets."
             required
           />
         </div>
-      </div>
+      </FormSection>
 
-      <Input
-        label="Timezone"
-        value={data.timezone}
-        onChange={(e) => setData((s) => ({ ...s, timezone: e.target.value }))}
-        placeholder="e.g. America/New_York"
-        hint="Controls what “today” means for this deadline."
-      />
-
-      <div className="space-y-4">
-        <div>
-          <div className="text-sm font-semibold text-brand-900">Schedule</div>
-          <div className="mt-1 text-sm text-brand-600">
-            Define recurrence clearly. On completion, the next cycle is generated
-            automatically.
-          </div>
-        </div>
+      <FormSection
+        step="02"
+        title="Schedule & timezone"
+        description="Define recurrence clearly. On completion, the next cycle is generated automatically."
+      >
+        <Input
+          label="Timezone"
+          value={data.timezone}
+          onChange={(e) =>
+            setData((s) => ({ ...s, timezone: e.target.value }))
+          }
+          placeholder="e.g. America/New_York"
+          hint='Controls what "today" means for this deadline.'
+        />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Select
             label="Frequency"
             value={data.frequency}
             onChange={(e) =>
-              setData((s) => ({ ...s, frequency: e.target.value as any }))
+              setData((s) => ({
+                ...s,
+                frequency: e.target.value as ReminderFormData["frequency"],
+              }))
             }
             options={frequencyOptions}
           />
@@ -229,7 +280,7 @@ export function ReminderForm(props: {
               placeholder="e.g. 45"
             />
           ) : data.frequency === "ONE_TIME" ? (
-            <Input label="Interval" value="—" readOnly disabled aria-disabled />
+            <Input label="Interval" value="—" readOnly disabled />
           ) : (
             <Input
               label="Interval"
@@ -243,41 +294,73 @@ export function ReminderForm(props: {
             />
           )}
         </div>
-      </div>
 
-      {data.frequency === "CUSTOM" ? (
+        {data.frequency === "CUSTOM" ? (
+          <Input
+            label="Cron expression (reserved)"
+            value={data.cronExpression}
+            onChange={(e) =>
+              setData((s) => ({ ...s, cronExpression: e.target.value }))
+            }
+            placeholder="Not executed in MVP (stored for future support)"
+          />
+        ) : null}
+      </FormSection>
+
+      <FormSection
+        step="03"
+        title="Notification offsets"
+        description="Control when alerts fire. Comma-separated days before due date. Overdue items continue to escalate daily until completed."
+      >
         <Input
-          label="Cron expression (reserved)"
-          value={data.cronExpression}
+          label="Offsets"
+          value={data.offsetsDays}
           onChange={(e) =>
-            setData((s) => ({ ...s, cronExpression: e.target.value }))
+            setData((s) => ({ ...s, offsetsDays: e.target.value }))
           }
-          placeholder="Not executed in MVP (stored for future support)"
+          placeholder="7,1,0"
+          hint="e.g. 7,3,1,0 — comma-separated, integer days."
         />
-      ) : null}
 
-      <Input
-        label="Notification offsets"
-        value={data.offsetsDays}
-        onChange={(e) => setData((s) => ({ ...s, offsetsDays: e.target.value }))}
-        placeholder="7,1,0"
-        hint="Comma-separated days before due date (e.g. 7,3,1,0). Overdue items escalate daily until completed."
-      />
+        {/* Live preview */}
+        {offsetsPreview && offsetsPreview.length > 0 ? (
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-2)]">
+              Preview
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {offsetsPreview
+                .slice()
+                .sort((a, b) => b - a)
+                .map((d) => (
+                  <Badge key={d} variant="accent">
+                    {d === 0 ? "Due day" : `T-${d}d`}
+                  </Badge>
+                ))}
+              <span className="text-[12.5px] text-[var(--muted-2)]">
+                · plus daily reminders if it goes overdue
+              </span>
+            </div>
+          </div>
+        ) : null}
+      </FormSection>
 
-      <div className="flex gap-2">
-        <Button type="submit" disabled={submitting}>
-          {props.mode === "create" ? "Create deadline" : "Save changes"}
-        </Button>
+      <div className="flex flex-wrap items-center justify-end gap-2 border-t border-[var(--border)] pt-5">
         <Button
           type="button"
-          variant="secondary"
+          variant="ghost"
           onClick={() => router.push("/reminders")}
         >
           Cancel
+        </Button>
+        <Button type="submit" disabled={submitting}>
+          {submitting
+            ? "Saving…"
+            : props.mode === "create"
+              ? "Create deadline"
+              : "Save changes"}
         </Button>
       </div>
     </form>
   );
 }
-
-

@@ -6,12 +6,22 @@ import { useRouter } from "next/navigation";
 import type { Reminder, ReminderSchedule } from "@prisma/client";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { computeEscalationLevel, escalationBadge } from "@/lib/escalation";
+import { StatusPill } from "@/components/ui/StatusPill";
+import { computeEscalationLevel } from "@/lib/escalation";
+import { cn } from "@/lib/cn";
 
 type ReminderWithSchedule = Reminder & { schedule: ReminderSchedule };
 
 function formatDate(d: Date) {
   return new Date(d).toISOString().slice(0, 10);
+}
+
+function formatDateNice(d: Date) {
+  return new Date(d).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 export function ReminderListClient(props: {
@@ -55,133 +65,156 @@ export function ReminderListClient(props: {
   }
 
   return (
-    <div className="space-y-3">
-      {props.reminders.map((r) => (
-        <div key={r.id}>
-          {(() => {
-            const esc =
-              r.status === "OPEN"
-                ? computeEscalationLevel({
-                    dueAt: r.dueAt,
-                    status: r.status,
-                    timeZone: r.schedule.timezone,
-                  })
-                : null;
-            const level = esc?.level ?? "NORMAL";
-            const border =
-              r.status !== "OPEN"
-                ? "border-l-brand-200"
-                : "border-l-accent";
+    <div className="space-y-2.5">
+      {props.reminders.map((r) => {
+        const esc =
+          r.status === "OPEN"
+            ? computeEscalationLevel({
+                dueAt: r.dueAt,
+                status: r.status,
+                timeZone: r.schedule.timezone,
+              })
+            : null;
 
-            return (
-              <div
-                className={[
-                  "flex flex-col gap-3 rounded-lg border border-border border-l-4 bg-surface p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between",
-                  border,
-                ].join(" ")}
-              >
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="min-w-0 truncate text-sm font-semibold text-brand-900">
-                {r.title}
+        const tone =
+          r.status !== "OPEN"
+            ? ("success" as const)
+            : esc?.level === "CRITICAL"
+              ? ("critical" as const)
+              : esc?.level === "WARNING"
+                ? ("warning" as const)
+                : ("live" as const);
+
+        const accentBar =
+          tone === "critical"
+            ? "bg-[var(--danger)]"
+            : tone === "warning"
+              ? "bg-[var(--warning)]"
+              : tone === "success"
+                ? "bg-[var(--success)]"
+                : "bg-[var(--accent)]";
+
+        const dueLabel = (() => {
+          if (r.status !== "OPEN") return "Completed";
+          if (!esc) return "—";
+          if (esc.daysToDue < 0)
+            return `Overdue · ${Math.abs(esc.daysToDue)}d`;
+          if (esc.daysToDue === 0) return "Due today";
+          if (esc.daysToDue === 1) return "Due tomorrow";
+          return `Due in ${esc.daysToDue}d`;
+        })();
+
+        return (
+          <div
+            key={r.id}
+            className={cn(
+              "group relative flex flex-col gap-3 overflow-hidden rounded-xl border border-[var(--border)] bg-white p-4 transition",
+              "hover:border-[var(--border-strong)] hover:shadow-[0_6px_20px_-8px_rgba(15,23,42,0.10),0_2px_6px_-2px_rgba(15,23,42,0.06)]",
+              "sm:flex-row sm:items-center sm:justify-between sm:gap-4",
+            )}
+          >
+            {/* Status accent bar */}
+            <span
+              aria-hidden
+              className={cn(
+                "absolute left-0 top-0 h-full w-1",
+                accentBar,
+              )}
+            />
+
+            <div className="min-w-0 pl-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="min-w-0 truncate text-[14.5px] font-semibold text-[var(--foreground-strong)]">
+                  {r.title}
+                </div>
+                {r.status === "COMPLETED" ? (
+                  <StatusPill tone="success" pulse={false}>
+                    Completed
+                  </StatusPill>
+                ) : (
+                  <StatusPill tone={tone} pulse={tone === "critical"}>
+                    {dueLabel}
+                  </StatusPill>
+                )}
               </div>
-              {r.status === "COMPLETED" ? (
-                <Badge variant="success">Completed</Badge>
-              ) : null}
-              {r.status === "OPEN" && esc ? (() => {
-                const b = escalationBadge(esc.level);
-                const label =
-                  esc.daysToDue < 0
-                    ? `Overdue · ${Math.abs(esc.daysToDue)}d`
-                    : esc.daysToDue === 0
-                      ? "Due today"
-                      : esc.daysToDue === 1
-                        ? "Due tomorrow"
-                        : `Due in ${esc.daysToDue}d`;
 
-                const variant =
-                  esc.level === "CRITICAL"
-                    ? "critical"
-                    : esc.level === "WARNING"
-                      ? "warning"
-                      : "neutral";
-                return (
-                  <Badge variant={variant}>
-                    {esc.level === "NORMAL" ? label : `${b.label} · ${label}`}
-                  </Badge>
-                );
-              })() : null}
-              <Badge variant="neutral">{r.category}</Badge>
-              {r.clientName ? <Badge variant="neutral">{r.clientName}</Badge> : null}
-              <Badge variant="neutral">{r.schedule.frequency}</Badge>
-            </div>
-            <div className="mt-1 text-sm text-brand-600">
-              Due: <span className="font-mono">{formatDate(r.dueAt)}</span>
-              {r.snoozedUntil ? (
-                <span className="ml-2 text-xs text-brand-600">
-                  Snoozed until <span className="font-mono">{formatDate(r.snoozedUntil)}</span>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <Badge variant="soft">{r.category}</Badge>
+                {r.clientName ? (
+                  <Badge variant="outline">{r.clientName}</Badge>
+                ) : null}
+                <Badge variant="neutral">{r.schedule.frequency}</Badge>
+              </div>
+
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-[var(--muted-2)]">
+                <span>
+                  Due{" "}
+                  <span className="font-mono text-[var(--muted)]">
+                    {formatDateNice(r.dueAt)}
+                  </span>
                 </span>
-              ) : null}
+                {r.snoozedUntil ? (
+                  <span>
+                    Snoozed until{" "}
+                    <span className="font-mono">
+                      {formatDate(r.snoozedUntil)}
+                    </span>
+                  </span>
+                ) : null}
+              </div>
+
               {r.description ? (
-                <span className="mt-1 block truncate text-brand-700">
+                <div className="mt-2 line-clamp-1 text-[12.5px] text-[var(--muted)]">
                   {r.description}
-                </span>
+                </div>
               ) : null}
             </div>
-          </div>
 
-          <div className="flex shrink-0 flex-wrap gap-2">
-            {r.status === "OPEN" ? (
+            <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+              {r.status === "OPEN" ? (
+                <>
+                  <Button
+                    size="sm"
+                    disabled={busyId === r.id}
+                    onClick={() => complete(r.id)}
+                  >
+                    Mark complete
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={busyId === r.id}
+                    onClick={() => snooze(r.id, 3)}
+                  >
+                    Snooze 3d
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={busyId === r.id}
+                    onClick={() => snooze(r.id, 7)}
+                  >
+                    Snooze 7d
+                  </Button>
+                  <Link href={`/reminders/${r.id}/edit`}>
+                    <Button variant="ghost" size="sm">
+                      Edit
+                    </Button>
+                  </Link>
+                </>
+              ) : null}
               <Button
-                variant="primary"
-                disabled={busyId === r.id}
-                onClick={() => complete(r.id)}
+                variant="ghost"
                 size="sm"
+                disabled={busyId === r.id}
+                onClick={() => del(r.id)}
               >
-                Mark completed
+                Delete
               </Button>
-            ) : null}
-            {r.status === "OPEN" ? (
-              <>
-                <Button
-                  variant="secondary"
-                  disabled={busyId === r.id}
-                  onClick={() => snooze(r.id, 3)}
-                  size="sm"
-                >
-                  Snooze 3d
-                </Button>
-                <Button
-                  variant="secondary"
-                  disabled={busyId === r.id}
-                  onClick={() => snooze(r.id, 7)}
-                  size="sm"
-                >
-                  Snooze 7d
-                </Button>
-              </>
-            ) : null}
-            {r.status === "OPEN" ? (
-              <Link href={`/reminders/${r.id}/edit`}>
-                <Button variant="secondary" size="sm">Edit</Button>
-              </Link>
-            ) : null}
-            <Button
-              variant="ghost"
-              disabled={busyId === r.id}
-              onClick={() => del(r.id)}
-              size="sm"
-            >
-              Delete
-            </Button>
+            </div>
           </div>
-              </div>
-            );
-          })()}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
-
-

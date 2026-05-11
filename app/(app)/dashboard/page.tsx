@@ -10,6 +10,19 @@ import { ReminderListClient } from "@/components/ReminderListClient";
 import { computeEscalationLevel } from "@/lib/escalation";
 import { auth } from "@clerk/nextjs/server";
 import { DueTodayListClient } from "@/components/DueTodayListClient";
+import { PageHeader } from "@/components/app/PageHeader";
+import { MetricCard } from "@/components/app/MetricCard";
+import { StatusPill } from "@/components/ui/StatusPill";
+import {
+  IconActivity,
+  IconAlert,
+  IconArrowRight,
+  IconBell,
+  IconCalendar,
+  IconCheck,
+  IconChecklist,
+  IconShield,
+} from "@/components/landing/Icons";
 
 function dateOnly(d: Date) {
   return new Date(d).toISOString().slice(0, 10);
@@ -81,139 +94,188 @@ export default async function DashboardPage() {
           dueAt: r.dueAt,
           status: r.status,
           timeZone: r.schedule.timezone,
-        }).level === "CRITICAL"
+        }).level === "CRITICAL",
     ).length ?? 0;
 
-  return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <div className="text-lg font-semibold text-brand-900">
-            Dashboard
-          </div>
-          <div className="mt-1 text-sm text-brand-600">
-            Today’s deadlines, upcoming <span className="text-danger">risk</span>
-            , and overdue enforcement.
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Badge>{openCount} open</Badge>
-            <Badge variant={overdueCount ? "warning" : "neutral"}>
-              {overdueCount} overdue
-            </Badge>
-            <Badge variant={criticalCount ? "critical" : "neutral"}>
-              {criticalCount} critical
-            </Badge>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/reminders/new">
-            <Button>Create deadline</Button>
-          </Link>
-          <Link href="/reminders">
-            <Button variant="secondary">All deadlines</Button>
-          </Link>
-        </div>
-      </div>
+  // compute compliance score (rough heuristic)
+  const totalActive = openCount + completed.length;
+  const score =
+    totalActive === 0
+      ? 100
+      : Math.max(
+          0,
+          Math.round(100 - (overdueCount * 100) / Math.max(1, totalActive)),
+        );
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="text-sm font-semibold tracking-wide text-accent">
-            Overdue
-          </div>
-          <div className="text-sm text-brand-600">
-            {overdueCount ? "Requires attention" : "Clear"}
-          </div>
+  return (
+    <div className="space-y-10">
+      <PageHeader
+        eyebrow={
+          <>
+            <IconActivity className="h-3.5 w-3.5" />
+            Operations overview
+          </>
+        }
+        title="Dashboard"
+        description={
+          <>
+            Today&apos;s deadlines, upcoming risk, and overdue enforcement at a glance.
+          </>
+        }
+        actions={
+          <>
+            <Link href="/reminders">
+              <Button variant="secondary">All deadlines</Button>
+            </Link>
+            <Link href="/reminders/new">
+              <Button>
+                <IconCalendar className="h-4 w-4" /> Create deadline
+              </Button>
+            </Link>
+          </>
+        }
+      />
+
+      {/* KPI grid */}
+      <section>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <MetricCard
+            label="Open"
+            value={openCount}
+            hint="Currently tracked deadlines"
+            icon={<IconChecklist className="h-4 w-4" />}
+            tone="live"
+          />
+          <MetricCard
+            label="Overdue"
+            value={overdueCount}
+            hint={
+              overdueCount === 0 ? "All clear" : "Daily escalation in progress"
+            }
+            icon={<IconAlert className="h-4 w-4" />}
+            tone={overdueCount > 0 ? "critical" : "success"}
+          />
+          <MetricCard
+            label="Critical"
+            value={criticalCount}
+            hint={criticalCount === 0 ? "None" : "≥ 3 days overdue"}
+            icon={<IconBell className="h-4 w-4" />}
+            tone={criticalCount > 0 ? "critical" : "neutral"}
+          />
+          <MetricCard
+            label="Compliance score"
+            value={`${score}`}
+            hint="Heuristic — overdue vs. active"
+            icon={<IconShield className="h-4 w-4" />}
+            tone={score >= 95 ? "success" : score >= 80 ? "warning" : "critical"}
+          />
         </div>
+      </section>
+
+      {/* Overdue */}
+      <section className="space-y-4">
+        <SectionTitle
+          title="Overdue"
+          tone={overdueCount ? "critical" : "success"}
+          status={overdueCount ? "Requires attention" : "All clear"}
+        />
         {overdue.length === 0 ? (
           <EmptyState
             title="No overdue deadlines"
-            description="Overdue deadlines stay visible and continue to escalate until completed."
+            description="When a deadline becomes overdue, it will surface here and continue to escalate until completed."
+            icon={<IconCheck className="h-5 w-5" />}
           />
         ) : (
           <ReminderListClient reminders={overdue} />
         )}
       </section>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <section className="space-y-3">
-          <div className="text-sm font-semibold tracking-wide text-accent">
-            Due today
-          </div>
-          <Card>
-            {dueToday.length === 0 ? (
-              <div className="text-sm text-[rgba(238,238,238,0.7)]">
+      {/* Two-column: Due today + Next 7 days */}
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="space-y-4">
+          <SectionTitle title="Due today" tone="warning" status={`${dueToday.length} item${dueToday.length === 1 ? "" : "s"}`} />
+          {dueToday.length === 0 ? (
+            <Card variant="muted" className="text-center">
+              <div className="text-sm font-medium text-[var(--foreground)]">
                 Nothing due today.
               </div>
-            ) : (
+              <div className="mt-1 text-[13px] text-[var(--muted-2)]">
+                Enjoy the calm. Upcoming work is in the next column.
+              </div>
+            </Card>
+          ) : (
+            <Card padding="sm">
               <DueTodayListClient reminders={dueToday} maxItems={8} />
-            )}
-          </Card>
-        </section>
+            </Card>
+          )}
+        </div>
 
-        <section className="space-y-3">
-          <div className="text-sm font-semibold tracking-wide text-accent">
-            Next 7 days
-          </div>
+        <div className="space-y-4">
+          <SectionTitle title="Next 7 days" tone="live" status={`${next7.length} upcoming`} />
           {next7.length === 0 ? (
             <EmptyState
-              title="No deadlines in the next 7 days"
-              description="Keep a light workload by setting offsets and handling items early."
+              title="Nothing in the next week"
+              description="Set offsets like 7,3,1,0 to keep upcoming deadlines visible early."
             />
           ) : (
             <ReminderListClient reminders={next7} />
           )}
-        </section>
-      </div>
-
-      <section className="space-y-3">
-        <div className="text-sm font-semibold tracking-wide text-accent">
-          Next 30 days
         </div>
+      </section>
+
+      {/* Next 30 days */}
+      <section className="space-y-4">
+        <SectionTitle
+          title="Next 30 days"
+          tone="neutral"
+          status={`${next30.length} scheduled`}
+        />
         {next30.length === 0 ? (
           <EmptyState
             title="No deadlines in the next 30 days"
             description="Create a deadline to begin tracking recurring or one-time work."
             ctaLabel="Create deadline"
             ctaHref="/reminders/new"
+            icon={<IconCalendar className="h-5 w-5" />}
           />
         ) : (
           <ReminderListClient reminders={next30} />
         )}
       </section>
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="text-sm font-semibold tracking-wide text-accent">
-            Recently completed
-          </div>
-          <div className="text-sm text-brand-600">
-            {completed.length ? `Showing ${completed.length}` : "—"}
-          </div>
-        </div>
+      {/* Recently completed */}
+      <section className="space-y-4">
+        <SectionTitle
+          title="Recently completed"
+          tone="success"
+          status={completed.length ? `Showing ${completed.length}` : "—"}
+        />
         {completed.length === 0 ? (
           <EmptyState
             title="No completion history yet"
             description="When you complete a deadline, it will appear here along with its proof and notes."
           />
         ) : (
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {completed.map((r) => (
-              <Card key={r.id} className="p-3">
+              <Card key={r.id} padding="sm" className="hover-lift">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <div className="truncate text-sm font-semibold text-brand-900">
+                      <div className="truncate text-sm font-semibold text-[var(--foreground-strong)]">
                         {r.title}
                       </div>
-                      <Badge variant="success">Completed</Badge>
+                      <Badge variant="success" dot>
+                        Completed
+                      </Badge>
                     </div>
-                    <div className="mt-1 text-sm text-brand-600">
+                    <div className="mt-1 text-[12.5px] text-[var(--muted-2)]">
                       Due <span className="font-mono">{dateOnly(r.dueAt)}</span>
                     </div>
                   </div>
                   <Link href={`/reminders/${r.id}/edit`}>
-                    <Button size="sm" variant="secondary">
-                      View
+                    <Button size="sm" variant="ghost">
+                      View <IconArrowRight className="h-3.5 w-3.5" />
                     </Button>
                   </Link>
                 </div>
@@ -226,4 +288,18 @@ export default async function DashboardPage() {
   );
 }
 
-
+function SectionTitle(props: {
+  title: string;
+  status?: string;
+  tone?: "live" | "critical" | "warning" | "success" | "neutral";
+}) {
+  const tone = props.tone ?? "live";
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <h2 className="text-[15px] font-semibold tracking-tight text-[var(--foreground-strong)]">
+        {props.title}
+      </h2>
+      {props.status ? <StatusPill tone={tone}>{props.status}</StatusPill> : null}
+    </div>
+  );
+}

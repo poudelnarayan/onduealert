@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
+import { cn } from "@/lib/cn";
 
 export const Popover = PopoverPrimitive.Root;
 export const PopoverTrigger = PopoverPrimitive.Trigger;
@@ -17,20 +18,17 @@ export const PopoverContent = React.forwardRef<
         ref={ref}
         align={align}
         sideOffset={sideOffset}
-        className={[
-          "z-50 rounded-xl border border-border bg-surface p-3 text-foreground shadow-none outline-none",
+        className={cn(
+          "z-50 rounded-xl border border-[var(--border)] bg-surface p-3 text-[var(--foreground)] outline-none",
+          "shadow-[0_18px_40px_-12px_rgba(15,23,42,0.18),0_4px_10px_-4px_rgba(15,23,42,0.08)]",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
           className,
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
         {...props}
       />
     </PopoverPrimitive.Portal>
   );
 });
 PopoverContent.displayName = "PopoverContent";
-
-

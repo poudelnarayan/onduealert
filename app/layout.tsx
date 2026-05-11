@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OnDueAlert",
+  title: "OnDueAlert — Compliance enforcement for deadlines that matter",
   description:
-    "Simple compliance reminders for freelancers and small businesses.",
+    "Track recurring deadlines, deliver precision alerts, and escalate overdue work until it's resolved — with an immutable audit trail.",
 };
 
 export default function RootLayout({
@@ -29,75 +29,77 @@ export default function RootLayout({
     <ClerkProvider
       appearance={{
         variables: {
-          colorPrimary: "#00ADB5",
-          colorTextOnPrimaryBackground: "#222831",
-          colorBackground: "#222831",
-          colorInputBackground: "#222831",
-          colorInputText: "#EEEEEE",
-          colorText: "#EEEEEE",
-          colorTextSecondary: "rgba(238,238,238,0.7)",
-          colorNeutral: "rgba(238,238,238,0.7)",
-          colorDanger: "#00ADB5",
-          colorSuccess: "#00ADB5",
+          colorPrimary: "#2563EB",
+          colorTextOnPrimaryBackground: "#FFFFFF",
+          colorBackground: "#FFFFFF",
+          colorInputBackground: "#FFFFFF",
+          colorInputText: "#0F172A",
+          colorText: "#0F172A",
+          colorTextSecondary: "#475569",
+          colorNeutral: "#475569",
+          colorDanger: "#EF4444",
+          colorSuccess: "#10B981",
+          colorWarning: "#F59E0B",
+          borderRadius: "0.75rem",
+          fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
         },
         elements: {
-          /* Containers */
-          rootBox: "bg-background text-foreground",
+          rootBox: "w-full",
           main: "bg-transparent w-full",
           pageScrollBox: "bg-transparent w-full",
           layout: "bg-transparent w-full",
-          card: "bg-surface border border-border shadow-none",
-          cardBox: "bg-surface border border-border shadow-none w-full",
-          modalBackdrop: "bg-black/50",
+          card:
+            "bg-white border border-[rgba(15,23,42,0.08)] shadow-[0_18px_40px_-12px_rgba(15,23,42,0.18),0_4px_10px_-4px_rgba(15,23,42,0.08)] rounded-2xl",
+          cardBox:
+            "bg-white border border-[rgba(15,23,42,0.08)] shadow-[0_18px_40px_-12px_rgba(15,23,42,0.18),0_4px_10px_-4px_rgba(15,23,42,0.08)] rounded-2xl w-full",
+          modalBackdrop: "bg-[rgba(15,23,42,0.45)] backdrop-blur-sm",
 
-          /* Typography */
-          headerTitle: "text-foreground",
-          headerSubtitle: "text-[rgba(238,238,238,0.7)]",
-          formFieldLabel: "text-foreground",
-          formFieldHintText: "text-[rgba(238,238,238,0.7)]",
-          formFieldErrorText: "text-accent",
-          footerActionText: "text-[rgba(238,238,238,0.7)]",
-          footerActionLink: "text-accent hover:text-accent/90",
-          identityPreviewText: "text-[rgba(238,238,238,0.7)]",
-          userPreviewMainIdentifier: "text-foreground",
-          userPreviewSecondaryIdentifier: "text-[rgba(238,238,238,0.7)]",
+          headerTitle: "text-[#0F172A] text-2xl font-semibold tracking-tight",
+          headerSubtitle: "text-[#475569]",
+          formFieldLabel: "text-[#0F172A] text-[13px] font-medium",
+          formFieldHintText: "text-[#475569]",
+          formFieldErrorText: "text-[#B91C1C]",
+          footerActionText: "text-[#475569]",
+          footerActionLink:
+            "text-[#2563EB] font-medium hover:text-[#1D4ED8]",
+          identityPreviewText: "text-[#475569]",
+          userPreviewMainIdentifier: "text-[#0F172A]",
+          userPreviewSecondaryIdentifier: "text-[#475569]",
 
-          /* Inputs */
           formFieldInput:
-            "bg-background text-foreground border border-border focus:border-accent focus:ring-2 focus:ring-accent/30 placeholder:text-[rgba(238,238,238,0.6)]",
+            "bg-white text-[#0F172A] border border-[rgba(15,23,42,0.14)] rounded-lg focus:border-[#2563EB] focus:ring-2 focus:ring-[rgba(37,99,235,0.20)] placeholder:text-[#94A3B8]",
 
-          /* Buttons */
           formButtonPrimary:
-            "bg-accent text-[#222831] hover:bg-accent/90",
+            "bg-[linear-gradient(180deg,#3b82f6_0%,#2563eb_100%)] text-white shadow-[0_8px_24px_-8px_rgba(37,99,235,0.55)] hover:shadow-[0_12px_32px_-8px_rgba(37,99,235,0.65)] rounded-lg",
           formButtonReset:
-            "bg-transparent text-accent ring-1 ring-inset ring-accent/70 hover:bg-accent-bg",
+            "bg-transparent text-[#0F172A] ring-1 ring-inset ring-[rgba(15,23,42,0.14)] hover:bg-[#F5F7FB] rounded-lg",
           socialButtonsBlockButton:
-            "bg-transparent text-foreground ring-1 ring-inset ring-border hover:bg-surface-muted",
-          socialButtonsBlockButtonText: "text-foreground",
+            "bg-white text-[#0F172A] ring-1 ring-inset ring-[rgba(15,23,42,0.14)] hover:bg-[#F5F7FB] rounded-lg",
+          socialButtonsBlockButtonText: "text-[#0F172A] font-medium",
 
-          /* Dividers */
-          dividerLine: "bg-border",
-          dividerText: "text-[rgba(238,238,238,0.7)]",
+          dividerLine: "bg-[rgba(15,23,42,0.08)]",
+          dividerText: "text-[#94A3B8]",
 
-          /* UserButton / popover */
-          userButtonTrigger: "text-foreground",
+          userButtonTrigger: "text-[#0F172A]",
           userButtonAvatarBox:
-            "bg-surface rounded-full ring-1 ring-border overflow-hidden",
-          userButtonAvatarImage: "rounded-full bg-transparent",
-          userButtonPopoverCard: "bg-surface border border-border shadow-none",
-          userButtonPopoverFooter: "bg-surface border-t border-border",
+            "bg-white rounded-full ring-1 ring-[rgba(15,23,42,0.14)] overflow-hidden",
+          userButtonAvatarImage: "rounded-full",
+          userButtonPopoverCard:
+            "bg-white border border-[rgba(15,23,42,0.08)] shadow-[0_18px_40px_-12px_rgba(15,23,42,0.18)] rounded-xl",
+          userButtonPopoverFooter:
+            "bg-[#F5F7FB] border-t border-[rgba(15,23,42,0.08)]",
           userButtonPopoverActionButton:
-            "text-foreground hover:bg-surface-muted",
-          userButtonPopoverActionButtonText: "text-foreground",
-          userButtonPopoverActionButtonIcon: "text-[rgba(238,238,238,0.7)]",
+            "text-[#0F172A] hover:bg-[#F5F7FB]",
+          userButtonPopoverActionButtonText: "text-[#0F172A]",
+          userButtonPopoverActionButtonIcon: "text-[#475569]",
 
-          /* UserProfile / account management */
-          navbar: "bg-surface border-r border-border",
-          navbarButton: "text-foreground hover:bg-surface-muted",
-          navbarButtonText: "text-foreground",
-          navbarButtonIcon: "text-[rgba(238,238,238,0.7)]",
-          profileSectionTitleText: "text-foreground",
-          profileSectionContent: "bg-surface border border-border",
+          navbar: "bg-white border-r border-[rgba(15,23,42,0.08)]",
+          navbarButton: "text-[#0F172A] hover:bg-[#F5F7FB]",
+          navbarButtonText: "text-[#0F172A]",
+          navbarButtonIcon: "text-[#475569]",
+          profileSectionTitleText: "text-[#0F172A]",
+          profileSectionContent:
+            "bg-white border border-[rgba(15,23,42,0.08)] rounded-xl",
         },
       }}
     >

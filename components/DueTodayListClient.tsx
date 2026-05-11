@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { Reminder, ReminderSchedule } from "@prisma/client";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { cn } from "@/lib/cn";
 
 type ReminderWithSchedule = Reminder & { schedule: ReminderSchedule };
 
@@ -51,25 +52,31 @@ export function DueTodayListClient(props: {
       {items.map((r) => (
         <div
           key={r.id}
-          className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+          className={cn(
+            "group flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 transition",
+            "hover:border-[var(--border-strong)] hover:shadow-sm",
+            "sm:flex-row sm:items-center sm:justify-between",
+          )}
         >
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex h-2 w-2 shrink-0 rounded-full bg-accent" />
-              <div className="min-w-0 truncate text-sm font-semibold text-foreground">
+              <span className="inline-flex h-2 w-2 shrink-0 rounded-full bg-[var(--warning)] status-dot" />
+              <div className="min-w-0 truncate text-[13.5px] font-semibold text-[var(--foreground-strong)]">
                 {r.title}
               </div>
-              {r.clientName ? <Badge variant="neutral">{r.clientName}</Badge> : null}
+              {r.clientName ? (
+                <Badge variant="outline">{r.clientName}</Badge>
+              ) : null}
               <Badge variant="neutral">{r.category}</Badge>
             </div>
-            <div className="mt-1 text-xs text-[rgba(238,238,238,0.7)]">
+            <div className="mt-1 text-[11.5px] text-[var(--muted-2)]">
               Due <span className="font-mono">{formatDate(r.dueAt)}</span>
               <span className="mx-2 opacity-40">•</span>
               {r.schedule.frequency}
             </div>
           </div>
 
-          <div className="flex shrink-0 flex-wrap gap-2">
+          <div className="flex shrink-0 flex-wrap gap-1.5">
             <Button
               size="sm"
               disabled={busyId === r.id}
@@ -86,7 +93,7 @@ export function DueTodayListClient(props: {
               Snooze 3d
             </Button>
             <Link href={`/reminders/${r.id}/edit`}>
-              <Button size="sm" variant="secondary">
+              <Button size="sm" variant="ghost">
                 Edit
               </Button>
             </Link>
@@ -95,16 +102,16 @@ export function DueTodayListClient(props: {
       ))}
 
       {props.reminders.length > max ? (
-        <div className="pt-1 text-sm text-[rgba(238,238,238,0.7)]">
+        <div className="pt-1 text-[12.5px] text-[var(--muted-2)]">
           Showing {max} of {props.reminders.length}.{" "}
-          <Link href="/reminders" className="text-accent hover:text-accent/90">
-            View all
+          <Link
+            href="/reminders"
+            className="font-medium text-[var(--accent-strong)] hover:underline"
+          >
+            View all →
           </Link>
-          .
         </div>
       ) : null}
     </div>
   );
 }
-
-

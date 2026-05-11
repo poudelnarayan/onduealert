@@ -1,4 +1,5 @@
 import Link from "next/link";
+import * as React from "react";
 import { Button } from "@/components/ui/Button";
 
 export function EmptyState(props: {
@@ -6,15 +7,23 @@ export function EmptyState(props: {
   description: string;
   ctaLabel?: string;
   ctaHref?: string;
+  icon?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-dashed border-border bg-surface p-6 text-center shadow-sm">
-      <div className="text-base font-semibold text-brand-900">{props.title}</div>
-      <div className="mx-auto mt-2 max-w-prose text-sm leading-6 text-brand-600">
+    <div className="rounded-2xl border border-dashed border-[var(--border-strong)] bg-white/50 p-8 text-center">
+      {props.icon ? (
+        <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--accent-bg)] text-[var(--accent-strong)]">
+          {props.icon}
+        </div>
+      ) : null}
+      <div className="text-base font-semibold text-[var(--foreground-strong)]">
+        {props.title}
+      </div>
+      <div className="mx-auto mt-1.5 max-w-prose text-sm leading-6 text-[var(--muted)]">
         {props.description}
       </div>
       {props.ctaHref && props.ctaLabel ? (
-        <div className="mt-4 flex justify-center">
+        <div className="mt-5 flex justify-center">
           <Link href={props.ctaHref}>
             <Button>{props.ctaLabel}</Button>
           </Link>
@@ -23,5 +32,3 @@ export function EmptyState(props: {
     </div>
   );
 }
-
-

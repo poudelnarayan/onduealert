@@ -48,8 +48,7 @@ export default function RootLayout({
           main: "bg-transparent w-full",
           pageScrollBox: "bg-transparent w-full",
           layout: "bg-transparent w-full",
-          card:
-            "bg-white border border-[rgba(15,23,42,0.08)] shadow-[0_18px_40px_-12px_rgba(15,23,42,0.18),0_4px_10px_-4px_rgba(15,23,42,0.08)] rounded-2xl",
+          card: "bg-white border border-[rgba(15,23,42,0.08)] shadow-[0_18px_40px_-12px_rgba(15,23,42,0.18),0_4px_10px_-4px_rgba(15,23,42,0.08)] rounded-2xl",
           cardBox:
             "bg-white border border-[rgba(15,23,42,0.08)] shadow-[0_18px_40px_-12px_rgba(15,23,42,0.18),0_4px_10px_-4px_rgba(15,23,42,0.08)] rounded-2xl w-full",
           modalBackdrop: "bg-[rgba(15,23,42,0.45)] backdrop-blur-sm",
@@ -60,8 +59,7 @@ export default function RootLayout({
           formFieldHintText: "text-[#475569]",
           formFieldErrorText: "text-[#B91C1C]",
           footerActionText: "text-[#475569]",
-          footerActionLink:
-            "text-[#2563EB] font-medium hover:text-[#1D4ED8]",
+          footerActionLink: "text-[#2563EB] font-medium hover:text-[#1D4ED8]",
           identityPreviewText: "text-[#475569]",
           userPreviewMainIdentifier: "text-[#0F172A]",
           userPreviewSecondaryIdentifier: "text-[#475569]",
@@ -88,8 +86,7 @@ export default function RootLayout({
             "bg-white border border-[rgba(15,23,42,0.08)] shadow-[0_18px_40px_-12px_rgba(15,23,42,0.18)] rounded-xl",
           userButtonPopoverFooter:
             "bg-[#F5F7FB] border-t border-[rgba(15,23,42,0.08)]",
-          userButtonPopoverActionButton:
-            "text-[#0F172A] hover:bg-[#F5F7FB]",
+          userButtonPopoverActionButton: "text-[#0F172A] hover:bg-[#F5F7FB]",
           userButtonPopoverActionButtonText: "text-[#0F172A]",
           userButtonPopoverActionButtonIcon: "text-[#475569]",
 

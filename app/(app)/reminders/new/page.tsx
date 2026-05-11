@@ -1,24 +1,26 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { ReminderForm } from "@/components/ReminderForm";
 import { auth } from "@clerk/nextjs/server";
 import { PageHeader } from "@/components/app/PageHeader";
-import { IconCalendar } from "@/components/landing/Icons";
 
 export default async function NewReminderPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-4xl space-y-6">
       <PageHeader
         eyebrow={
-          <>
-            <IconCalendar className="h-3.5 w-3.5" />
-            New deadline
-          </>
+          <Link
+            href="/reminders"
+            className="text-[var(--muted)] transition hover:text-[var(--foreground-strong)]"
+          >
+            ← Back to deadlines
+          </Link>
         }
-        title="Create deadline"
-        description="Define the deadline, its schedule, and the notifications you want before it's due."
+        title="New deadline"
+        description="Set a due date, repeat cadence, and which days you want reminders."
       />
       <ReminderForm mode="create" />
     </div>

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import * as React from "react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -109,20 +108,6 @@ function Hero() {
                 </div>
               </FadeIn>
 
-              {/* Trusted-by row */}
-              <FadeIn>
-                <div className="mt-12">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-2)]">
-                    Trusted by operators in
-                  </div>
-                  <div className="mt-4 grid grid-cols-2 items-center gap-x-6 gap-y-3 text-[13px] font-semibold text-[var(--muted)] sm:grid-cols-4">
-                    <div className="opacity-80 transition hover:opacity-100">Accounting firms</div>
-                    <div className="opacity-80 transition hover:opacity-100">Compliance teams</div>
-                    <div className="opacity-80 transition hover:opacity-100">Agencies</div>
-                    <div className="opacity-80 transition hover:opacity-100">Legal operations</div>
-                  </div>
-                </div>
-              </FadeIn>
             </Stagger>
           </div>
 
@@ -130,39 +115,6 @@ function Hero() {
           <div id="how" className="lg:col-span-6">
             <HeroPreview />
           </div>
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-/* ==========================================================================
-   Stats / proof bar
-   ========================================================================== */
-
-function StatBar() {
-  const stats = [
-    { value: "99.98%", label: "notification delivery" },
-    { value: "0", label: "duplicate sends, ever" },
-    { value: "<60s", label: "alert latency, median" },
-    { value: "100%", label: "audit-trail coverage" },
-  ];
-  return (
-    <section className="border-y border-[var(--border)] bg-white/50 backdrop-blur-sm">
-      <Container className="py-10">
-        <div className="grid grid-cols-2 gap-y-6 sm:grid-cols-4">
-          {stats.map((s, i) => (
-            <FadeIn key={s.label} delay={i * 0.05}>
-              <div className="text-center sm:text-left">
-                <div className="text-2xl font-semibold tracking-tight text-[var(--foreground-strong)] sm:text-3xl">
-                  {s.value}
-                </div>
-                <div className="mt-1 text-[12.5px] uppercase tracking-wider text-[var(--muted-2)]">
-                  {s.label}
-                </div>
-              </div>
-            </FadeIn>
-          ))}
         </div>
       </Container>
     </section>
@@ -180,7 +132,6 @@ function ProblemSection() {
       title: "Missed deadlines hit hardest where it matters",
       description:
         "Calendar invites get muted. Spreadsheets fall stale. Penalties, lost contracts, and compliance violations don't.",
-      meta: "—$84k average penalty per missed filing",
       tone: "critical" as const,
     },
     {
@@ -188,15 +139,13 @@ function ProblemSection() {
       title: "Tracking lives in too many places",
       description:
         "Email threads, Notion pages, Slack DMs, three calendars. Nothing is the source of truth, so nobody trusts the system.",
-      meta: "Avg 4.2 tools used per compliance workflow",
       tone: "warning" as const,
     },
     {
       icon: <IconUsers className="h-5 w-5" />,
       title: "Accountability is unclear",
       description:
-        "When it slips, no one is sure who was on point or what the next step actually was — until it's already late.",
-      meta: "61% of teams cite ownership ambiguity",
+        "When something slips, no one knows who was on point or what the next step actually was — until it's already late.",
       tone: "neutral" as const,
     },
   ];
@@ -240,10 +189,6 @@ function ProblemSection() {
                 <p className="mt-2 text-[14.5px] leading-6 text-[var(--muted)]">
                   {p.description}
                 </p>
-                <div className="mt-5 flex items-center gap-2 border-t border-[var(--border)] pt-4 text-[12.5px] text-[var(--muted-2)]">
-                  <IconActivity className="h-3.5 w-3.5" />
-                  <span className="font-medium">{p.meta}</span>
-                </div>
               </Card>
             </FadeIn>
           ))}
@@ -523,13 +468,31 @@ function FeaturesSection() {
    ========================================================================== */
 
 function ReliabilitySection() {
-  const events = [
-    { icon: <IconMail className="h-3.5 w-3.5" />, label: "T-7 reminder · scheduled", time: "12:00:01 UTC", tone: "live" as const },
-    { icon: <IconCheck className="h-3.5 w-3.5" />, label: "T-7 reminder · delivered", time: "12:00:42 UTC", tone: "success" as const },
-    { icon: <IconMail className="h-3.5 w-3.5" />, label: "T-3 reminder · scheduled", time: "12:00:01 UTC", tone: "live" as const },
-    { icon: <IconCheck className="h-3.5 w-3.5" />, label: "T-3 reminder · delivered", time: "12:00:38 UTC", tone: "success" as const },
-    { icon: <IconAlert className="h-3.5 w-3.5" />, label: "Send failed · retrying", time: "12:01:05 UTC", tone: "warning" as const },
-    { icon: <IconCheck className="h-3.5 w-3.5" />, label: "Retry succeeded · idempotent", time: "12:01:18 UTC", tone: "success" as const },
+  const items = [
+    {
+      icon: <IconLock className="h-5 w-5" />,
+      title: "Idempotent delivery",
+      description:
+        "Every notification carries a stable key, so retries and re-runs never produce duplicate emails.",
+    },
+    {
+      icon: <IconRepeat className="h-5 w-5" />,
+      title: "Automatic retries",
+      description:
+        "Transient send failures back off and retry on their own — you don't get paged at 3 AM for a flaky SMTP hop.",
+    },
+    {
+      icon: <IconActivity className="h-5 w-5" />,
+      title: "Per-deadline log",
+      description:
+        "Every scheduled, sent, retried, and failed notification is stored next to the deadline it belongs to.",
+    },
+    {
+      icon: <IconShield className="h-5 w-5" />,
+      title: "Audit-ready by default",
+      description:
+        "Completion notes and attachments are preserved alongside the notification trail — nothing has to be reconstructed later.",
+    },
   ];
 
   return (
@@ -537,177 +500,36 @@ function ReliabilitySection() {
       id="reliability"
       className="relative overflow-hidden border-y border-[var(--border)] bg-white"
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(900px 500px at 90% 0%, rgba(37,99,235,0.08), transparent 65%), radial-gradient(900px 500px at 10% 100%, rgba(6,182,212,0.08), transparent 65%)",
-        }}
-      />
       <Container className="relative py-24 sm:py-28">
-        <div className="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:items-start">
-          <div className="lg:col-span-5">
-            <SectionHeader
-              eyebrow="Reliability"
-              title={
-                <>
-                  Built to be <span className="text-gradient">trusted</span>.
-                </>
-              }
-              description="Deadlines are only useful if notifications consistently fire, remain visible when overdue, and leave a record you can reference. We instrument every step."
-            />
+        <SectionHeader
+          eyebrow="Reliability"
+          title={
+            <>
+              Built to be <span className="text-gradient">trusted</span>.
+            </>
+          }
+          description="Deadlines are only useful if notifications consistently fire, remain visible when overdue, and leave a record you can reference."
+        />
 
-            <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {[
-                {
-                  icon: <IconLock className="h-4 w-4" />,
-                  title: "Idempotent delivery",
-                  description: "Stable keys ensure no duplicate emails, ever.",
-                },
-                {
-                  icon: <IconRepeat className="h-4 w-4" />,
-                  title: "Automatic retries",
-                  description: "Transient failures retry with backoff.",
-                },
-                {
-                  icon: <IconActivity className="h-4 w-4" />,
-                  title: "Notification log",
-                  description: "Per-deadline history with status & timing.",
-                },
-                {
-                  icon: <IconShield className="h-4 w-4" />,
-                  title: "Audit ready",
-                  description: "Immutable proof of every send.",
-                },
-              ].map((r) => (
-                <div
-                  key={r.title}
-                  className="rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-4"
-                >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[var(--accent-strong)] ring-1 ring-[var(--border)]">
-                    {r.icon}
-                  </div>
-                  <div className="mt-3 text-[14px] font-semibold text-[var(--foreground-strong)]">
-                    {r.title}
-                  </div>
-                  <div className="mt-1 text-[12.5px] text-[var(--muted)]">
-                    {r.description}
-                  </div>
+        <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {items.map((r, i) => (
+            <FadeIn key={r.title} delay={i * 0.04}>
+              <Card className="h-full p-6">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--accent-bg)] text-[var(--accent-strong)]">
+                  {r.icon}
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right: live activity panel + delivery dashboard */}
-          <div className="lg:col-span-7">
-            <Card className="overflow-hidden p-0">
-              <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3">
-                <div className="flex items-center gap-2 text-[12px] font-semibold text-[var(--foreground-strong)]">
-                  <IconActivity className="h-4 w-4 text-[var(--accent)]" />
-                  Notification log · Quarterly VAT
+                <div className="mt-5 text-[16px] font-semibold tracking-tight text-[var(--foreground-strong)]">
+                  {r.title}
                 </div>
-                <StatusPill tone="success">100% delivered</StatusPill>
-              </div>
-
-              {/* Delivery sparkline + metrics */}
-              <div className="grid grid-cols-1 gap-4 border-b border-[var(--border)] p-5 sm:grid-cols-3">
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-2)]">
-                    Sent (30d)
-                  </div>
-                  <div className="mt-1 text-2xl font-semibold tracking-tight text-[var(--foreground-strong)]">
-                    1,284
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-2)]">
-                    Failures
-                  </div>
-                  <div className="mt-1 text-2xl font-semibold tracking-tight text-[var(--foreground-strong)]">
-                    0
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-2)]">
-                    Avg latency
-                  </div>
-                  <div className="mt-1 text-2xl font-semibold tracking-tight text-[var(--foreground-strong)]">
-                    42s
-                  </div>
-                </div>
-                <div className="sm:col-span-3">
-                  <Sparkline />
-                </div>
-              </div>
-
-              {/* Activity feed */}
-              <ul className="divide-y divide-[var(--border)]">
-                {events.map((e, i) => (
-                  <motion.li
-                    key={i}
-                    initial={{ opacity: 0, x: -8 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: i * 0.05 }}
-                    className="flex items-center gap-3 px-5 py-3 text-[13px]"
-                  >
-                    <span
-                      className={[
-                        "flex h-7 w-7 items-center justify-center rounded-lg ring-1 ring-inset",
-                        e.tone === "warning"
-                          ? "bg-[var(--warning-bg)] text-[var(--warning-strong)] ring-[var(--warning-ring)]"
-                          : e.tone === "success"
-                            ? "bg-[var(--success-bg)] text-[var(--success-strong)] ring-[var(--success-ring)]"
-                            : "bg-[var(--accent-bg)] text-[var(--accent-strong)] ring-[rgba(37,99,235,0.25)]",
-                      ].join(" ")}
-                    >
-                      {e.icon}
-                    </span>
-                    <span className="flex-1 font-medium text-[var(--foreground)]">
-                      {e.label}
-                    </span>
-                    <span className="font-mono text-[11px] text-[var(--muted-2)]">
-                      {e.time}
-                    </span>
-                  </motion.li>
-                ))}
-              </ul>
-            </Card>
-          </div>
+                <p className="mt-2 text-[14px] leading-6 text-[var(--muted)]">
+                  {r.description}
+                </p>
+              </Card>
+            </FadeIn>
+          ))}
         </div>
       </Container>
     </section>
-  );
-}
-
-function Sparkline() {
-  // simple SVG sparkline — pure decoration
-  const points = [10, 12, 8, 15, 18, 14, 22, 20, 26, 24, 30, 28, 34, 31, 38, 36, 42];
-  const max = Math.max(...points);
-  const min = Math.min(...points);
-  const w = 600;
-  const h = 60;
-  const step = w / (points.length - 1);
-  const path = points
-    .map((p, i) => {
-      const x = i * step;
-      const y = h - ((p - min) / (max - min)) * h;
-      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
-  const area = `${path} L${w},${h} L0,${h} Z`;
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-12 w-full">
-      <defs>
-        <linearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2563eb" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill="url(#spark)" />
-      <path d={path} fill="none" stroke="#2563eb" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }
 
@@ -835,46 +657,6 @@ function ComparisonSection() {
 }
 
 /* ==========================================================================
-   Testimonial / quote
-   ========================================================================== */
-
-function QuoteSection() {
-  return (
-    <section className="relative">
-      <Container className="py-20 sm:py-24">
-        <FadeIn>
-          <div className="relative mx-auto max-w-4xl rounded-3xl border border-[var(--border)] bg-white p-10 shadow-[0_18px_40px_-12px_rgba(15,23,42,0.10)] sm:p-14">
-            <div className="absolute -top-3 left-10 inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-white shadow-md">
-              <IconSparkles className="h-3.5 w-3.5" />
-              Operator quote
-            </div>
-            <blockquote className="text-pretty text-2xl font-medium leading-snug tracking-tight text-[var(--foreground-strong)] sm:text-3xl">
-              &ldquo;We replaced four spreadsheets, two shared calendars, and a
-              recurring nightmare with OnDueAlert. The first quarter we used
-              it, we hit zero missed deadlines and our auditors stopped asking
-              for screenshots.&rdquo;
-            </blockquote>
-            <div className="mt-8 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,#3b82f6,#06b6d4)] text-sm font-semibold text-white">
-                EM
-              </div>
-              <div>
-                <div className="text-[14px] font-semibold text-[var(--foreground-strong)]">
-                  Elena Martínez
-                </div>
-                <div className="text-[12.5px] text-[var(--muted-2)]">
-                  Director of Compliance · 11-person accounting firm
-                </div>
-              </div>
-            </div>
-          </div>
-        </FadeIn>
-      </Container>
-    </section>
-  );
-}
-
-/* ==========================================================================
    Final CTA
    ========================================================================== */
 
@@ -900,82 +682,35 @@ function FinalCTA() {
                   "radial-gradient(600px 300px at 80% 0%, rgba(59,130,246,0.55), transparent 65%), radial-gradient(600px 300px at 20% 100%, rgba(6,182,212,0.40), transparent 65%)",
               }}
             />
-            <div className="relative grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-center">
-              <div className="lg:col-span-7">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/85 backdrop-blur">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-white status-dot" />
-                  Ready when you are
-                </div>
-                <h2 className="mt-5 text-pretty text-3xl font-semibold leading-tight tracking-tight text-white sm:text-[40px]">
-                  Stop hoping deadlines don&apos;t slip.
-                  <br className="hidden sm:block" />
-                  Start enforcing them.
-                </h2>
-                <p className="mt-4 max-w-xl text-pretty text-[15px] leading-7 text-white/75">
-                  Set up your first deadline in under three minutes. Cancel any
-                  time. Keep the audit trail forever.
-                </p>
-                <div className="mt-7 flex flex-wrap items-center gap-3">
-                  <Link href="/sign-up">
-                    <Button size="lg" className="bg-white !text-[var(--foreground-strong)] shadow-lg hover:bg-white/95 hover:shadow-xl">
-                      Start free
-                      <IconArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href="/sign-in">
-                    <Button
-                      size="lg"
-                      variant="ghost"
-                      className="!text-white/85 ring-1 ring-inset ring-white/20 hover:!bg-white/10"
-                    >
-                      Sign in
-                    </Button>
-                  </Link>
-                </div>
-                <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12.5px] text-white/65">
-                  <span className="inline-flex items-center gap-1.5">
-                    <IconCheck className="h-3.5 w-3.5 text-[#34d399]" />
-                    Email & client tagging
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <IconCheck className="h-3.5 w-3.5 text-[#34d399]" />
-                    Idempotent retries
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <IconCheck className="h-3.5 w-3.5 text-[#34d399]" />
-                    Audit-ready exports
-                  </span>
-                </div>
-              </div>
-
-              <div className="relative lg:col-span-5">
-                <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-white/60">
-                    Today
-                  </div>
-                  <div className="mt-3 space-y-2">
-                    {[
-                      { t: "License renewal · DOT permit", s: "Due in 7 days", tone: "live" as const },
-                      { t: "Client tax filing · Acme", s: "Due tomorrow", tone: "warning" as const },
-                      { t: "Insurance audit upload", s: "Completed today", tone: "success" as const },
-                    ].map((d) => (
-                      <div
-                        key={d.t}
-                        className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2"
-                      >
-                        <div>
-                          <div className="text-[13px] font-semibold text-white">
-                            {d.t}
-                          </div>
-                          <div className="text-[11px] text-white/60">{d.s}</div>
-                        </div>
-                        <StatusPill tone={d.tone}>
-                          {d.tone === "success" ? "Done" : d.tone === "warning" ? "Soon" : "Tracking"}
-                        </StatusPill>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            <div className="relative mx-auto max-w-2xl text-center">
+              <h2 className="text-pretty text-3xl font-semibold leading-tight tracking-tight text-white sm:text-[40px]">
+                Stop hoping deadlines don&apos;t slip.
+                <br className="hidden sm:block" />
+                Start enforcing them.
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl text-pretty text-[15px] leading-7 text-white/75">
+                Set up your first deadline in a few minutes. Cancel any time.
+                Keep the audit trail forever.
+              </p>
+              <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+                <Link href="/sign-up">
+                  <Button
+                    size="lg"
+                    className="bg-white !text-[var(--foreground-strong)] shadow-lg hover:bg-white/95"
+                  >
+                    Get started
+                    <IconArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/sign-in">
+                  <Button
+                    size="lg"
+                    variant="ghost"
+                    className="!text-white/85 ring-1 ring-inset ring-white/20 hover:!bg-white/10"
+                  >
+                    Sign in
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -995,13 +730,11 @@ export function LandingPage() {
       <LandingHeader />
       <main>
         <Hero />
-        <StatBar />
         <ProblemSection />
         <HowItWorks />
         <FeaturesSection />
         <ReliabilitySection />
         <ComparisonSection />
-        <QuoteSection />
         <FinalCTA />
       </main>
       <LandingFooter />

@@ -50,44 +50,43 @@ export function CompleteReminderClient(props: { reminderId: string }) {
           htmlFor="completion-note"
           className="mb-1.5 block text-[13px] font-medium text-[var(--foreground)]"
         >
-          Completion note (optional)
+          Completion note
         </label>
         <textarea
           id="completion-note"
-          rows={4}
+          rows={3}
           maxLength={2000}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="What did you do? Reference number? Link to proof?"
+          placeholder="What was done. Reference numbers, links."
           className="w-full rounded-lg border border-[var(--border-strong)] bg-white px-3 py-2 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-3)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(37,99,235,0.20)]"
         />
-        <div className="mt-1.5 text-[12px] text-[var(--muted-2)]">
-          Stored in the immutable completion history.
+        <div className="mt-1 text-[11.5px] text-[var(--muted-2)]">
+          Optional. Stored in the audit trail.
         </div>
       </div>
 
       <div>
         <div className="mb-1.5 text-[13px] font-medium text-[var(--foreground)]">
-          Proof file (optional, max 2MB)
+          Proof attachment
         </div>
         <label
           htmlFor="proof-file"
-          className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-dashed border-[var(--border-strong)] bg-[var(--surface-muted)] px-4 py-3 text-[13px] text-[var(--muted)] transition hover:border-[var(--accent)] hover:bg-white"
+          className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-dashed border-[var(--border-strong)] bg-white px-4 py-2.5 text-[13px] text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--surface-muted)]"
         >
           <span>
             {file ? (
               <>
-                Selected:{" "}
-                <span className="font-mono text-[var(--foreground)]">
+                <span className="font-medium text-[var(--foreground)]">
                   {file.name}
                 </span>{" "}
                 · {Math.round(file.size / 1024)} KB
               </>
             ) : (
-              "Choose a file or drag it here"
+              "Choose a file"
             )}
           </span>
-          <span className="rounded-md bg-white px-2.5 py-1 text-[11.5px] font-semibold text-[var(--accent-strong)] ring-1 ring-[var(--border)]">
+          <span className="rounded-md bg-[var(--surface-muted)] px-2 py-0.5 text-[11.5px] font-medium text-[var(--muted)] ring-1 ring-[var(--border)]">
             Browse
           </span>
         </label>
@@ -97,10 +96,18 @@ export function CompleteReminderClient(props: { reminderId: string }) {
           className="sr-only"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
         />
+        <div className="mt-1 text-[11.5px] text-[var(--muted-2)]">
+          Optional. Max 2 MB.
+        </div>
       </div>
 
-      <Button type="button" disabled={submitting} onClick={submit}>
-        {submitting ? "Saving…" : "Mark completed"}
+      <Button
+        type="button"
+        onClick={submit}
+        loading={submitting}
+        loadingText="Saving…"
+      >
+        Mark complete
       </Button>
     </div>
   );

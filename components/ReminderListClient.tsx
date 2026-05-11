@@ -13,10 +13,6 @@ import { cn } from "@/lib/cn";
 type ReminderWithSchedule = Reminder & { schedule: ReminderSchedule };
 
 function formatDate(d: Date) {
-  return new Date(d).toISOString().slice(0, 10);
-}
-
-function formatDateNice(d: Date) {
   return new Date(d).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
@@ -30,33 +26,18 @@ export function ReminderListClient(props: {
   const router = useRouter();
   const [busyId, setBusyId] = React.useState<string | null>(null);
 
-  async function complete(id: string) {
+  async function call(
+    id: string,
+    path: string,
+    body?: Record<string, unknown>,
+    method: "POST" | "DELETE" = "POST",
+  ) {
     setBusyId(id);
     try {
-      await fetch(`/api/reminders/${id}/complete`, { method: "POST" });
-      router.refresh();
-    } finally {
-      setBusyId(null);
-    }
-  }
-
-  async function del(id: string) {
-    setBusyId(id);
-    try {
-      await fetch(`/api/reminders/${id}`, { method: "DELETE" });
-      router.refresh();
-    } finally {
-      setBusyId(null);
-    }
-  }
-
-  async function snooze(id: string, days: number) {
-    setBusyId(id);
-    try {
-      await fetch(`/api/reminders/${id}/snooze`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ days }),
+      await fetch(`/api/reminders/${id}${path}`, {
+        method,
+        headers: body ? { "Content-Type": "application/json" } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
       });
       router.refresh();
     } finally {
@@ -96,37 +77,38 @@ export function ReminderListClient(props: {
 
         const dueLabel = (() => {
           if (r.status !== "OPEN") return "Completed";
-          if (!esc) return "—";
+          if (!esc) return "";
           if (esc.daysToDue < 0)
-            return `Overdue · ${Math.abs(esc.daysToDue)}d`;
+            return `Overdue ${Math.abs(esc.daysToDue)}d`;
           if (esc.daysToDue === 0) return "Due today";
           if (esc.daysToDue === 1) return "Due tomorrow";
           return `Due in ${esc.daysToDue}d`;
         })();
 
+        const busy = busyId === r.id;
+
         return (
           <div
             key={r.id}
             className={cn(
-              "group relative flex flex-col gap-3 overflow-hidden rounded-xl border border-[var(--border)] bg-white p-4 transition",
-              "hover:border-[var(--border-strong)] hover:shadow-[0_6px_20px_-8px_rgba(15,23,42,0.10),0_2px_6px_-2px_rgba(15,23,42,0.06)]",
+              "group relative flex flex-col gap-3 overflow-hidden rounded-xl border border-[var(--border)] bg-white p-4 transition-colors",
+              "hover:border-[var(--border-strong)]",
               "sm:flex-row sm:items-center sm:justify-between sm:gap-4",
             )}
           >
-            {/* Status accent bar */}
             <span
               aria-hidden
-              className={cn(
-                "absolute left-0 top-0 h-full w-1",
-                accentBar,
-              )}
+              className={cn("absolute left-0 top-0 h-full w-1", accentBar)}
             />
 
             <div className="min-w-0 pl-2">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="min-w-0 truncate text-[14.5px] font-semibold text-[var(--foreground-strong)]">
+                <Link
+                  href={`/reminders/${r.id}/edit`}
+                  className="min-w-0 truncate text-[14px] font-semibold text-[var(--foreground-strong)] hover:text-[var(--accent-strong)]"
+                >
                   {r.title}
-                </div>
+                </Link>
                 {r.status === "COMPLETED" ? (
                   <StatusPill tone="success" pulse={false}>
                     Completed
@@ -138,36 +120,32 @@ export function ReminderListClient(props: {
                 )}
               </div>
 
-              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                 <Badge variant="soft">{r.category}</Badge>
                 {r.clientName ? (
                   <Badge variant="outline">{r.clientName}</Badge>
                 ) : null}
-                <Badge variant="neutral">{r.schedule.frequency}</Badge>
+                <Badge variant="neutral">
+                  {r.schedule.frequency.replace("_", " ").toLowerCase()}
+                </Badge>
               </div>
 
-              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-[var(--muted-2)]">
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 text-[12px] text-[var(--muted-2)]">
                 <span>
                   Due{" "}
-                  <span className="font-mono text-[var(--muted)]">
-                    {formatDateNice(r.dueAt)}
+                  <span className="font-medium text-[var(--muted)]">
+                    {formatDate(r.dueAt)}
                   </span>
                 </span>
                 {r.snoozedUntil ? (
                   <span>
-                    Snoozed until{" "}
-                    <span className="font-mono">
+                    Snoozed to{" "}
+                    <span className="font-medium text-[var(--muted)]">
                       {formatDate(r.snoozedUntil)}
                     </span>
                   </span>
                 ) : null}
               </div>
-
-              {r.description ? (
-                <div className="mt-2 line-clamp-1 text-[12.5px] text-[var(--muted)]">
-                  {r.description}
-                </div>
-              ) : null}
             </div>
 
             <div className="flex shrink-0 flex-wrap items-center gap-1.5">
@@ -175,39 +153,40 @@ export function ReminderListClient(props: {
                 <>
                   <Button
                     size="sm"
-                    disabled={busyId === r.id}
-                    onClick={() => complete(r.id)}
+                    loading={busy}
+                    loadingText="Saving…"
+                    onClick={() => call(r.id, "/complete", undefined, "POST")}
                   >
-                    Mark complete
+                    Complete
                   </Button>
                   <Button
-                    variant="secondary"
                     size="sm"
-                    disabled={busyId === r.id}
-                    onClick={() => snooze(r.id, 3)}
+                    variant="secondary"
+                    loading={busy}
+                    loadingText="…"
+                    onClick={() => call(r.id, "/snooze", { days: 3 }, "POST")}
                   >
                     Snooze 3d
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={busyId === r.id}
-                    onClick={() => snooze(r.id, 7)}
-                  >
-                    Snooze 7d
-                  </Button>
                   <Link href={`/reminders/${r.id}/edit`}>
-                    <Button variant="ghost" size="sm">
+                    <Button size="sm" variant="ghost">
                       Edit
                     </Button>
                   </Link>
                 </>
-              ) : null}
+              ) : (
+                <Link href={`/reminders/${r.id}/edit`}>
+                  <Button size="sm" variant="ghost">
+                    View
+                  </Button>
+                </Link>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
-                disabled={busyId === r.id}
-                onClick={() => del(r.id)}
+                loading={busy}
+                loadingText="…"
+                onClick={() => call(r.id, "", undefined, "DELETE")}
               >
                 Delete
               </Button>
